@@ -23,6 +23,8 @@ import javax.swing.table.DefaultTableModel;
 
 import model.Cliente;
 import model.ClienteTableModel;
+import util.DadosMockados;
+
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
@@ -61,7 +63,7 @@ public class TelaCadastro extends JFrame {
 	public TelaCadastro() {
 		
 		clientes = new ArrayList<Cliente>();
-		clientes.add(new Cliente("Raul", "9698744", "raul@unir.br", "Homi"));
+		DadosMockados.carregar(clientes);
 		modelo = new ClienteTableModel(clientes);
 		
 		setResizable(false);
