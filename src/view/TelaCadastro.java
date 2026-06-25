@@ -21,6 +21,7 @@ import javax.swing.JButton;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
+import dao.ClienteDAO;
 import model.Cliente;
 import model.ClienteTableModel;
 import util.DadosMockados;
@@ -54,6 +55,7 @@ public class TelaCadastro extends JFrame {
 	private BufferedWriter bufferedWriter;
 	private FileReader fileReader;
 	private BufferedReader bufferedReader;
+	private ClienteDAO dao;
 
 	/**
 	 * Launch the application.
@@ -75,10 +77,10 @@ public class TelaCadastro extends JFrame {
 	 * Create the frame.
 	 */
 	public TelaCadastro() {
-		
+		dao = new ClienteDAO();
 		clientes = new ArrayList<Cliente>();
-		DadosMockados.carregar(clientes);
-		modelo = new ClienteTableModel(clientes);
+		//DadosMockados.carregar(clientes);
+		modelo = new ClienteTableModel(dao.listar());
 		
 		setResizable(false);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -177,7 +179,8 @@ public class TelaCadastro extends JFrame {
 							JOptionPane.WARNING_MESSAGE);
 				}else {
 					Cliente cliente = new Cliente(nome, telefone, email, sexo);
-					modelo.addCliente(cliente);
+					modelo.addCliente(cliente);					
+					dao.inserir(cliente);
 					JOptionPane.showMessageDialog(TelaCadastro.this, 
 							"Cliente adicionado com sucesso!", "Sucesso!", 
 							JOptionPane.INFORMATION_MESSAGE);
@@ -197,7 +200,12 @@ public class TelaCadastro extends JFrame {
 		btnExcluir.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				int indice = table.getSelectedRow();
-				modelo.removerCliente(indice);
+				if (indice >= 0) {
+					Cliente cliente = modelo.getCliente(indice);
+					dao.excluir(cliente.getId());
+					modelo.removerCliente(indice);
+				}
+				
 			}
 		});
 		btnExcluir.setBounds(153, 25, 105, 27);
@@ -281,6 +289,27 @@ public class TelaCadastro extends JFrame {
 		
 		JMenu mnNewMenuEditar = new JMenu("Editar");
 		menuBar.add(mnNewMenuEditar);
+		
+		JMenuItem mntmAtualizar = new JMenuItem("Atualizar");
+		mntmAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				int linha = table.getSelectedRow();
+				if (linha < 0) {
+					JOptionPane.showMessageDialog(TelaCadastro.this, "Selecione um cliente para atualizar!", 
+							"Aviso", JOptionPane.WARNING_MESSAGE);
+					return;
+				}else {
+					Cliente cliente = modelo.getCliente(linha);
+					TelaAtualizar dialogo = new TelaAtualizar(TelaCadastro.this, cliente);
+					dialogo.setVisible(true);
+					if (dialogo.getClienteEditado() != null) {
+						dao.atualizar(dialogo.getClienteEditado());
+						modelo.atualizarTabela(dao.listar());
+					}
+				}
+			}
+		});
+		mnNewMenuEditar.add(mntmAtualizar);
 		
 		JMenu mnNewMenu_2 = new JMenu("Preferências");
 		menuBar.add(mnNewMenu_2);

@@ -75,5 +75,14 @@ public class ClienteTableModel extends AbstractTableModel{
 		fireTableDataChanged();
 	}
 	
+	public Cliente getCliente(int index) {
+		return clientes.get(index);
+	}
+	
+	public void atualizarTabela(ArrayList<Cliente> clientes) {
+		this.clientes = clientes;
+		fireTableDataChanged();
+	}
+	
 
 }
